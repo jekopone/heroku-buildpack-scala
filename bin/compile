@@ -81,6 +81,11 @@ SBT_TASKS="compile stage"
 # See: https://devcenter.heroku.com/articles/scala-support#clean-builds
 [ "$SBT_CLEAN" = "true" ] && SBT_TASKS="clean $SBT_TASKS"
 
+if [ -d $SBT_USER_HOME/.ivy2 ]; then
+  echo "-----> Dropping ivy cache from the slug"
+  rm -rf $SBT_USER_HOME/.ivy2
+fi
+
 if [ ! -d .ivy2/cache ]; then
    mkdir -p .ivy2/cache
 fi
@@ -131,22 +136,6 @@ if is_sbt_native_packager $BUILD_DIR || is_play $BUILD_DIR; then
   if [ -d $SBT_USER_HOME/.ivy2 ]; then
     echo "-----> Dropping ivy cache from the slug"
     rm -rf $SBT_USER_HOME/.ivy2
-  fi
-  if [ -d $SBT_USER_HOME/boot ] ; then
-    echo "-----> Dropping sbt boot dir from the slug"
-    rm -rf $SBT_USER_HOME/boot
-  fi
-  if [ -d $BUILD_DIR/project/boot ] ; then
-    echo "-----> Dropping project boot dir from the slug"
-    rm -rf $BUILD_DIR/project/boot
-  fi
-  if [ -d $BUILD_DIR/target ] ; then
-    echo "-----> Dropping compilation artifacts from the slug"
-    rm -rf $BUILD_DIR/target/scala-*
-    rm -rf $BUILD_DIR/target/streams
-    if [ -d $BUILD_DIR/target/resolution-cache ] ; then
-      find $BUILD_DIR/target/resolution-cache/* ! -name "reports" ! -name "*-compile.xml" -print0 | xargs -0 rm -rf --
-    fi
   fi
 fi
 
